@@ -1,7 +1,7 @@
 use actix_web::{test, App};
-use backend::routes;
-use backend::state::AppState;
-use backend::handlers::types::{AddOrderRequest, DeleteOrderRequest, SwapMockRequest, QuoteQuery};
+use smartswap_backend::routes;
+use smartswap_backend::state::AppState;
+use smartswap_backend::handlers::types::{AddOrderRequest, DeleteOrderRequest, SwapMockRequest, QuoteQuery};
 use serde_json::json;
 
 #[actix_web::test]
@@ -147,12 +147,12 @@ async fn test_swap_mock() {
 
 #[actix_web::test]
 async fn test_uniswap_price_handler() {
-    use backend::state::AppState;
+    use smartswap_backend::state::AppState;
     let app_state = AppState::new();
     let app = test::init_service(
         App::new()
             .app_data(actix_web::web::Data::new(app_state))
-            .service(backend::routes::create_routes())
+            .service(smartswap_backend::routes::create_routes())
     ).await;
 
     let req = test::TestRequest::get()
