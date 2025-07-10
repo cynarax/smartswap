@@ -1,1 +1,1 @@
-![CI](https://github.com/ginfinitylabs/backend/actions/workflows/ci.yml/badge.svg) 
+![CI](https://github.com/ginfinitylabs/smartswap/actions/workflows/ci.yml/badge.svg)
