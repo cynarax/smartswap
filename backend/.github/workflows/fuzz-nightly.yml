@@ -1,0 +1,70 @@
+name: Nightly Fuzz Testing
+
+on:
+  schedule:
+    # Запуск глубокого fuzz-тестирования каждую ночь в 3:00 UTC
+    - cron: '0 3 * * *'
+
+jobs:
+  nightly-fuzz:
+    name: Nightly Deep Fuzz Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        
+    - name: Install cargo-fuzz
+      run: |
+        cargo install cargo-fuzz
+        sudo apt-get update
+        sudo apt-get install -y clang llvm-dev libclang-dev
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+          
+    - name: Run deep fuzz tests (orderbook)
+      run: |
+        cd backend/fuzz
+        timeout 1800 cargo fuzz run orderbook -- -runs=10000 -max_len=8192
+        
+    - name: Run deep fuzz tests (swap_engine)
+      run: |
+        cd backend/fuzz
+        timeout 1800 cargo fuzz run swap_engine -- -runs=10000 -max_len=8192
+        
+    - name: Run deep fuzz tests (api_handlers)
+      run: |
+        cd backend/fuzz
+        timeout 1800 cargo fuzz run api_handlers -- -runs=10000 -max_len=8192
+        
+    - name: Run deep fuzz tests (pricing)
+      run: |
+        cd backend/fuzz
+        timeout 1800 cargo fuzz run pricing -- -runs=10000 -max_len=8192
+        
+    - name: Run deep fuzz tests (types)
+      run: |
+        cd backend/fuzz
+        timeout 1800 cargo fuzz run types -- -runs=10000 -max_len=8192
+        
+    - name: Upload corpus
+      uses: actions/upload-artifact@v3
+      with:
+        name: fuzz-corpus-nightly
+        path: backend/fuzz/corpus/
+        retention-days: 7 

@@ -1,0 +1,11 @@
+# Fuzz artifacts
+artifacts/
+corpus/
+crash-*
+leak-*
+timeout-*
+*.profraw
+
+# Cargo artifacts
+target/
+Cargo.lock 

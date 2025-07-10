@@ -1,0 +1,1 @@
+![CI](https://github.com/ginfinitylabs/backend/actions/workflows/ci.yml/badge.svg) 

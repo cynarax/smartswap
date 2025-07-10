@@ -1,0 +1,77 @@
+name: Fuzz Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Запуск fuzz-тестов каждую ночь в 2:00 UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  fuzz:
+    name: Fuzz Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        
+    - name: Install cargo-fuzz
+      run: |
+        cargo install cargo-fuzz
+        sudo apt-get update
+        sudo apt-get install -y clang llvm-dev libclang-dev
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+          
+    - name: Run fuzz tests (orderbook)
+      run: |
+        cd backend/fuzz
+        timeout 300 cargo fuzz run orderbook -- -runs=1000 -max_len=4096
+        
+    - name: Run fuzz tests (swap_engine)
+      run: |
+        cd backend/fuzz
+        timeout 300 cargo fuzz run swap_engine -- -runs=1000 -max_len=4096
+        
+    - name: Run fuzz tests (api_handlers)
+      run: |
+        cd backend/fuzz
+        timeout 300 cargo fuzz run api_handlers -- -runs=1000 -max_len=4096
+        
+    - name: Run fuzz tests (pricing)
+      run: |
+        cd backend/fuzz
+        timeout 300 cargo fuzz run pricing -- -runs=1000 -max_len=4096
+        
+    - name: Run fuzz tests (types)
+      run: |
+        cd backend/fuzz
+        timeout 300 cargo fuzz run types -- -runs=1000 -max_len=4096
+        
+    - name: Upload artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: fuzz-artifacts
+        path: |
+          backend/fuzz/artifacts/
+          backend/fuzz/corpus/
+        retention-days: 30 

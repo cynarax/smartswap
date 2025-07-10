@@ -1,0 +1,30 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 162524,
+  "links": [],
+  "panels": [],
+  "refresh": false,
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": ["smartswap"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "SmartSwap Backend",
+  "uid": "smartswap-backend",
+  "version": 1
+} 
