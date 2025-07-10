@@ -1,128 +1,118 @@
+---
 
 # smartswap
 
 ![CI](https://github.com/ginfinitylabs/smartswap/actions/workflows/ci.yml/badge.svg)
 
-> **smartswap** — production-ready, test-driven DeFi backend architecture for institutional-grade analytics, routing и автоматизации на AMM (Uniswap, PancakeSwap и др).  
-> Модульный, property-based тесты, покрытие всей бизнес-логики, Docker, CI, мониторинг.
+**smartswap** — production-ready, test-driven DeFi backend for institutional-grade analytics, AMM routing, and automation. Modular, property-based tested, Docker-native, CI/CD, and full observability.
 
 ---
 
 ## Features
 
-- ⚡ **Модульный Rust workspace**: `core` (бизнес-логика), `backend` (API, состояние, мониторинг)
-- 🏛️ **UniswapV2/AMM price oracles** (BSC, ETH, extendable, property/fuzz tested)
-- 📚 **Orderbook, swap engine, quotes** — строгие типы, вся математика в core
-- 🌐 **Actix-web API backend** — REST, OpenAPI, health/metrics
-- 🔬 **Тесты**: unit, integration, property-based, fuzz, e2e (см. /tests, /fuzz)
-- 🚢 **Docker-native**: docker-compose, Grafana + Prometheus monitoring stack, CI
+* Modular Rust workspace: core (business logic), backend (API, state, monitoring)
+* UniswapV2/AMM price oracles: BSC, ETH, extendable, property/fuzz tested
+* Orderbook, swap engine, deterministic math, all types in core
+* REST API backend: actix-web, OpenAPI, health, metrics
+* Tests: unit, integration, property-based, fuzz, e2e (see /tests, /fuzz)
+* Docker-native: docker-compose, Prometheus + Grafana monitoring, CI/CD
 
 ---
 
-## Быстрый старт
+## Quick Start
 
-### Зависимости
+* Rust >= 1.74 (stable)
+* Docker + docker-compose (for infra)
+* Node.js (optional, only for TS API client generation)
 
-- Rust >= 1.74 (stable)
-- Docker + docker-compose (для инфры)
-- Node.js (только для генерации TS API клиента, не обязательно)
+* Clone the repo and enter the directory:
+  * `git clone https://github.com/ginfinitylabs/smartswap.git`
+  * `cd smartswap`
 
-### Build & Test
+* Build core (with Uniswap support):
+  * `cargo build -p smartswap_core --features uniswap`
 
-```sh
-# Клонируем и заходим в проект
-git clone https://github.com/ginfinitylabs/smartswap.git
-cd smartswap
+* Run all tests (unit + e2e + property):
+  * `cargo test --workspace`
 
-# Сборка core (с поддержкой Uniswap)
-cargo build -p smartswap_core --features uniswap
+* Run backend API (dev):
+  * `cargo run -p smartswap_backend`
 
-# Запуск всех тестов (unit + e2e + property)
-cargo test --workspace
+* Bring up monitoring stack (backend + Prometheus + Grafana):
+  * `docker-compose up --build`
 
-# Запуск backend API (dev mode)
-cargo run -p smartswap_backend
+---
 
-Docker Compose (мониторинг, prod/dev)
+## Project Structure
 
-docker-compose up --build
-# поднимет backend + Prometheus + Grafana
+* smartswap/
+  * core/ – DeFi logic: orderbook, price feeds, swaps, types
+  * backend/ – REST API, Prometheus, state
+  * infra/ – docker-compose, monitoring, test scripts
+  * api-client/ – (optional) Generated TS API client (OpenAPI)
+  * tests/ – Integration/e2e/property/fuzz tests
+  * docker-compose.yml
+  * README.md
 
+---
 
-⸻
+## Modules
 
-Структура проекта
+* core/orderbook.rs — In-memory orderbook, property-based tests
+* core/swap_engine.rs — Swap math, execution logic
+* core/price_source.rs — Pluggable price oracles (UniswapV2, Pancake, CoinGecko, mock)
+* core/types.rs — Strict types, error models
+* backend/main.rs — API entrypoint
+* backend/handlers/ — Endpoints, request/response schemas
+* backend/routes.rs — Router
+* backend/state.rs — Global state (orderbook, price sources)
 
-smartswap/
-├── core/         # Вся DeFi-логика, ордербук, прайс-фиды, свапы
-├── backend/      # REST API (actix-web), прометей, состояние
-├── infra/        # docker-compose, мониторинг, тестовые скрипты
-├── api-client/   # (опционально) Сгенерённый TS API client (openapi)
-├── tests/        # Интеграционные/e2e/property/fuzz тесты
-├── docker-compose.yml
-└── README.md
+---
 
+## API
 
-⸻
+* OpenAPI spec: `api.yaml`
+* TypeScript API client: `api-client/` (auto-generated)
+* REST endpoints: orderbook, price, swap, health, metrics
 
-Модули
+---
 
-core
-	•	orderbook.rs — In-memory orderbook, property-based тесты
-	•	swap_engine.rs — Расчёты свапов, исполнение
-	•	price_source.rs — Модули для прайс-оригинов (UniswapV2, Pancake, CoinGecko, mock)
-	•	types.rs — Строгие типы, error models
+## Monitoring & CI
 
-backend
-	•	main.rs — Точка входа REST API
-	•	handlers/ — Все эндпоинты, схемы запросов/ответов
-	•	routes.rs — Роутер
-	•	state.rs — Глобальное состояние приложения (ордербук, прайс-сорсы)
+* Prometheus + Grafana: infra/grafana, infra/prometheus.yml
+* GitHub Actions CI: all tests on push (see .github/workflows/)
+* Coverage and quality gates enforced
 
-⸻
+---
 
-API
-	•	OpenAPI-спека: api.yaml
-	•	TypeScript API client: api-client/ (генерируется из спеки)
-	•	REST endpoints: ордербук, прайс, свап, health, метрики
+## Contributing
 
-⸻
+* rustfmt, clippy clean, property-based tests required for critical modules
+* PRs accepted only if all tests/lints pass
+* All new features must include tests
 
-Мониторинг & CI
-	•	Prometheus + Grafana — infra/grafana, infra/prometheus.yml
-	•	GitHub Actions CI:
+---
 
-	•	E2E тесты и отчёты в CI на каждый push (см. workflows/)
+## License
 
-⸻
+* MIT OR Apache-2.0 (see LICENSE)
 
-Contributing
-	•	Стиль: rustfmt, clippy clean, обязательное property-based тестирование критических модулей
-	•	PR — только если проходят все тесты и lint
-	•	Любой новый функционал требует теста
+---
 
-⸻
+## Authors
 
-License
+* Artem Chagin / ginfinitylabs
+* CYNARA Engineering
 
-MIT OR Apache-2.0
-См. LICENSE
+---
 
-⸻
+## Attributions
 
-Authors
-	•	Артём Чагин / ginfinitylabs
-	•	CYNARA Engineering
+* Uniswap Labs, PancakeSwap
+* actix-web, ethers-rs, proptest, and more
 
-⸻
+---
 
-Attributions
-	•	Uniswap Labs, PancakeSwap
-	•	actix-web, ethers-rs, proptest и др.
-
-⸻
-
-Вопросы, интеграция, коммерческая поддержка —
-team@dexprobe.xyz
+*For questions, integration, or enterprise/commercial support: team@dexprobe.xyz*
 
 ---
