@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: stable
+
+      - name: Install dependencies (if needed)
+        run: sudo apt-get update
+
+      - name: Build (all workspace)
+        run: cargo build --workspace --all-features --release
+
+      - name: Run tests
+        run: cargo test --workspace --all-features -- --test-threads=1 --nocapture
+
+      # (по желанию) Линтер и clippy
+      - name: Run clippy (lint)
+        run: cargo clippy --workspace --all-features -- -D warnings
+
+      # (по желанию) Форматтер
+      - name: Run fmt check
+        run: cargo fmt -- --check
